@@ -1,4 +1,6 @@
 import numpy as np
 
-ting = np.arange(9)
-print(ting*(ting>2))
+ting = open("/home/kodemannen/snap/quadrapassel/44/.local/share/quadrapassel/history", "w")
+
+ting.truncate()
+ting.close()

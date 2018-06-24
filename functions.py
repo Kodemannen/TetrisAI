@@ -9,13 +9,13 @@ import numpy as np
 #plt.imshow(npimg)
 #plt.show()
 
-def Get_current_state(region=(65,62,367,365)):
+def Get_current_state(region):
     # Gets image of tetris game, returns as column vector
     state = agu.screenshot(region=region) #region(x,y,width,height)
     numpystate = np.array(state)
     shape = numpystate.shape
 
-    columnstate = numpystate.reshape(shape[0]*shape[1]*shape[2],1)
+    columnstate = numpystate.reshape(shape[0]*shape[1]*shape[2]) / 255.
     return columnstate
 
 def Policy_function(state):
@@ -32,8 +32,9 @@ def Softmax(vec):
     softmaxed = exped / np.sum(exped)
     return softmaxed
     
-def Get_action_commands(vec, actions):
-    # Gets action from output an vector vec
+def Get_multiple_action_commands(vec, actions):
+    # Samples multiple action commands
+    ########## NOT PROPERLY IMPLEMENTED FOR BACKPROP ############
     commands = []
     for i in range(len(vec)):
         #if vec[i] < threshold:
@@ -43,13 +44,18 @@ def Get_action_commands(vec, actions):
             commands.append(actions[i])
     return commands
 
+def Get_single_action_command(vec, actions): 
+    # Samples a single action command
+    index = np.random.choice(len(vec), p=vec)
+    command = actions[index]
+    return command, index
+
 def Get_initial_params(arcitecture):
     params = {}
     for l in range(len(arcitecture)-1):
-        print(l)
         n = arcitecture[l]
         params["w%s" % l] = np.random.randn(arcitecture[l+1],n) / np.sqrt(n)    # weight matrix of layer l
-        params["b%s" % l] = np.zeros(shape=(arcitecture[l+1], 1))               # bias vector of layer l
+        params["b%s" % l] = np.zeros(shape=(arcitecture[l+1]))               # bias vector of layer l
     return params
 
 def Forward(state, params, L):
@@ -60,3 +66,4 @@ def Forward(state, params, L):
         y = np.dot(w, a) + b
         a = ReLu(y) if  l != L-2 else Softmax(y)
     return a
+
