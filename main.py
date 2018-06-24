@@ -10,18 +10,18 @@ from sys import exit as ex
 #############################
 # LOCATING GAME WINDOW ETC: #
 #############################
-pos = agu.locateOnScreen("active.png")
+pos = agu.locateOnScreen("Images/active.png")
 if pos == None:
-    pos = agu.locateOnScreen("unactive.png")
+    pos = agu.locateOnScreen("Images/unactive.png")
     if pos == None:
-        pos = agu.locateOnScreen("gameover.png")
+        pos = agu.locateOnScreen("Images/gameover.png")
     if pos == None:
-        pos = agu.locateOnScreen("closetoedge.png")
+        pos = agu.locateOnScreen("Images/closetoedge.png")
     if pos == None:
         ex("Can't find Tetris window, try moving window away from edge. Aborting.")
     agu.moveTo(pos[0]-30,pos[1]+5)
     agu.click()
-pos = agu.locateOnScreen("active.png")
+pos = agu.locateOnScreen("Images/active.png")
 game_region =(pos[0]-128,pos[1]+30, 365,365)
 initial_state = functions.Get_current_state(game_region)
 
