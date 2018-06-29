@@ -24,11 +24,13 @@ def Policy_function(state):
     return action
 
 def ReLu(vec):
-    a = vec*(vec>0)
-    return a
+    #a = vec*(vec>0)
+    #return a
+    vec[vec<0] = 0
+    return vec
 
 def Softmax(vec):
-    exped = np.exp(vec)
+    exped = np.exp(vec-np.max(vec))
     softmaxed = exped / np.sum(exped)
     return softmaxed
     
@@ -50,20 +52,57 @@ def Get_single_action_command(vec, actions):
     command = actions[index]
     return command, index
 
-def Get_initial_params(arcitecture):
+def Get_initial_params(architecture, L):
     params = {}
-    for l in range(len(arcitecture)-1):
-        n = arcitecture[l]
-        params["w%s" % l] = np.random.randn(arcitecture[l+1],n) / np.sqrt(n)    # weight matrix of layer l
-        params["b%s" % l] = np.zeros(shape=(arcitecture[l+1]))               # bias vector of layer l
+    for l in range(1, L):
+        n = architecture[l-1]
+        params["w%s" % l] = np.random.randn(n, architecture[l]) / np.sqrt(n)    # weight matrix of layer l
+        params["b%s" % l] = np.zeros(shape=(architecture[l]))               # bias vector of layer l
     return params
 
+
 def Forward(state, params, L):
+    
     a = state
-    for l in range(L-1):
+    activations = [a]
+    for l in range(1, L):
         w = params["w%s" % l]
         b = params["b%s" % l]
-        y = np.dot(w, a) + b
-        a = ReLu(y) if  l != L-2 else Softmax(y)
-    return a
+        z = np.dot(w.T, a) + b
+        a = ReLu(z) if  l != L-1 else Softmax(z)
+        activations.append(a)
+    return a, activations
 
+
+def Get_zero_gradient(architecture, L):
+    grads = {}
+    for l in range(1, L):
+        n = architecture[l-1]
+        grads["w%s" % l] = np.random.randn(n, architecture[l]) / np.sqrt(n)    # weight matrix of layer l
+        grads["b%s" % l] = np.zeros(shape=(architecture[l]))               # bias vector of layer l
+    return grads
+
+def Update_gradients(gradients, params, activations, L, action_index):
+    
+    y = activations[-1]
+    y_targ = np.zeros(len(y))
+    y_targ[action_index] = 1
+
+    for l in reversed(range(1,L)):
+
+        if l==(L-1):
+            grad_z = y_targ - y
+        else:
+            w_lp1 = params["w%s"%(l+1)]      
+            grad_z = (activations[l]>0)*np.dot(w_lp1, grad_z)
+            
+        gradients["b%s"%l] += grad_z
+        gradients["w%s"%l] += np.outer(activations[l-1], grad_z.T)
+    return None
+
+def Update_params(gradients, params, L, R):
+
+    for l in range(1,L):
+        params["w%s"%l] -= R*gradients["w%s"%l]
+        params["b%s"%l] -= R*gradients["b%s"%l] 
+    return None

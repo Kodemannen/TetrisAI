@@ -1,2 +1,3 @@
 # ReinforcementLearnerForTetris
-Using reinforcement learning to train a tetris playing AI.
+Using reinforcement learning to train an AI to play Tetris.
+Plays using a GNOME Tetris clone called Quadrapassel.
