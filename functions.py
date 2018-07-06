@@ -100,6 +100,31 @@ def Update_gradients(gradients, params, activations, L, action_index):
         gradients["w%s"%l] += np.outer(activations[l-1], grad_z.T)
     return None
 
+def Update_multiple_gradients(gradients, params, activations, L, action_indices):
+    Ttot = len(activations)
+
+    y = np.array(activations[:,-1])
+    print(y)
+    n = len(y[0])
+    #print(n, len(y))
+    y_targ = np.zeros((len(y), n))
+    #print(np.shape(y_targ))
+
+    y_targ[range(Ttot), action_indices] = 1
+    print("yes")
+    for l in reversed(range(1,L)):
+
+        if l==(L-1):
+            grad_z = y_targ - y
+        else:
+            w_lp1 = params["w%s"%(l+1)]      
+            grad_z = (activations[l]>0)*np.dot(w_lp1, grad_z)
+            
+        gradients["b%s"%l] += grad_z
+        gradients["w%s"%l] += np.outer(activations[l-1], grad_z.T)
+    return None
+
+
 def Update_params(gradients, params, L, R):
 
     for l in range(1,L):

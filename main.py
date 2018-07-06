@@ -48,7 +48,7 @@ initial_state = functions.Get_current_state(game_region)
 actions = ["nothing", "up", "down", "left", "right", "space"]
 
 number_of_actions = len(actions)
-architecture = [initial_state.shape[0], 256, number_of_actions]
+architecture = [initial_state.shape[0], 3, number_of_actions]
 L = len(architecture)
 change_limit = 3    # if the state is unchanged in 5 frames, we assume the game is over
 loss_score = -10    # for when the score is 0
@@ -115,10 +115,10 @@ while training:
                     change_counter = 0
                     old_state = state
                 
-            activations_list.append(activations)
+            activations_list.append(np.array(activations))
             actions_list.append(action_index)
 
-            time.sleep(0.1)
+            time.sleep(0.5)
 
         ##################
         # Getting score: #
@@ -180,12 +180,16 @@ while training:
 
         gradients = functions.Get_zero_gradient(architecture, L)
 
-        for t in range(Ttime):
-            #state_t = activations_list[t][0]
-            activations = activations_list[t]
-            action_index = actions_list[t]
+        # for t in range(Ttime):
+        #     #state_t = activations_list[t][0]
+        #     activations = activations_list[t]
+        #     action_index = actions_list[t]
 
-            functions.Update_gradients(gradients, params, activations, L, action_index)
+        #     functions.Update_gradients(gradients, params, activations, L, action_index)
+
+        activations = activations_list
+        action_indices = actions_list[:-1]
+        functions.Update_multiple_gradients(gradients, params, activations, L, action_indices)
 
         functions.Update_params(gradients, params, L, R)
 
