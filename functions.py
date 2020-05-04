@@ -24,10 +24,7 @@ def Policy_function(state):
     return action
 
 def ReLu(vec):
-    #a = vec*(vec>0)
-    #return a
-    vec[vec<0] = 0
-    return vec
+    return (vec>0)*vec
 
 def Softmax(vec):
     exped = np.exp(vec-np.max(vec))
